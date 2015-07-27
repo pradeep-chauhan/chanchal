@@ -119,6 +119,15 @@ elseif(isset($_GET['Bill_search']))
     $response=$db->search_bill($search_bill_no,$search_name);
     echo json_encode($response);
 }
+elseif(isset($_GET['pay_amount']))
+{
+    $db=new Database();
+    $bill_no=$_GET['bill_no'];
+    $name=$_GET['name'];
+    $amount=$_GET['amount'];
+    $response=$db->updateCreditInfo($bill_no,$name,$amount);
+    echo json_encode($response);
+}
 elseif(isset($_GET['credit_bill_search']))
 {
     $db=new Database();

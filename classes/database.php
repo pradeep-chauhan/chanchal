@@ -791,7 +791,6 @@ class Database {
             $pay=$info['pay'];
         }
         if($payment_status=="credit"){
-            echo "hi";
             $stmt=$dbobject->prepare("insert into `credit_list`(`bill_no`, `name`,`amount`, `date`, `given_by`) values(:bill_no,:name,:amount,'$date',:given_by)");
             $stmt->bindParam(':bill_no',$info['bill_no']);
             $stmt->bindParam(':name',$info['name']);
@@ -1008,23 +1007,61 @@ class Database {
     function searchCredit_bill($search_bil_no,$search_name,$search_mobile){
         $search_bill_details=array();
         $dbobject=new PDO(Config::$dbType.":host=".Config::$dbHost.";dbname=".Config::$dbName,Config::$dbUser,Config::$dbPassword);
-        if($search_bil_no=="" and $search_name=="" and $search_mobile==""){
-            echo "enter";
-            $stmt=$dbobject->prepare("select * from `credit_list` INNER JOIN `sell_product` ON `credit_list`.`bill_no`=`sell_product`.`id` WHERE `sell_product`.`payment_mode`='credit' ORDER BY `credit_list`.`id` DESC");
+        if($search_bil_no=="" && $search_name=="" && $search_mobile==""){
+            $stmt=$dbobject->prepare("select * from `sell_product` WHERE `payment_mode`='credit' ORDER BY `id` DESC");
             $stmt->execute();
             while($row=$stmt->fetch(PDO::FETCH_ASSOC)){
-                $search_bill_details[]=$row;
+                $stmt2=$dbobject->prepare("select * from `credit_list`  WHERE `bill_no`=:bill_no ORDER BY `id` DESC");
+                //$bill_no=$row['id'];
+                $stmt2->bindParam(":bill_no",$row['id']);
+                $stmt2->execute();
+                $total_pay=0;
+                while($row1=$stmt2->fetch(PDO::FETCH_ASSOC)) {
+                    $total_pay +=$row1['amount'];
+
+                }
             }
+            $row['total_pay']=$total_pay;
+            $search_bill_details[]=$row;
         }
         else {
-            $stmt=$dbobject->prepare("select * from `credit_list` INNER JOIN `sell_product` ON `credit_list`.`bill_no`=`sell_product`.`id` where (`sell_product`.`id` LIKE '$search_bil_no' OR `sell_product`.`name` LIKE '$search_name' OR `sell_product`.`mobile` LIKE '$search_mobile') and (`sell_product`.`payment_mode`='credit') ORDER BY `credit_list`.`id` DESC");
+            $stmt=$dbobject->prepare("select * from `sell_product`  where (`id` LIKE '$search_bil_no' OR `name` LIKE '$search_name' OR `mobile` LIKE '$search_mobile') and (`payment_mode`='credit') ORDER BY `id` DESC");
             $stmt->execute();
             while($row=$stmt->fetch(PDO::FETCH_ASSOC)){
                 $search_bill_details[]=$row;
+                $stmt=$dbobject->prepare("select `amount` from `credit_list`  WHERE `bill_no`=:bill_no ORDER BY `id` DESC");
+                $stmt->bindParam(":bill_no",$row['bill_no']);
+                $total_pay=0;
+                while($row1=$stmt->fetch(PDO::FETCH_ASSOC)) {
+                    $total_pay +=$row1['amount'];
+                }
+
             }
+            $search_bill_details['total_pay']=$total_pay;
+            $search_bill_details[]=$row;
         }
         $dbobject = null;
         return $search_bill_details;
+    }
+    function updateCreditInfo($bill_no,$name,$amount){
+        $total_pay=array();
+        date_default_timezone_set('Asia/Kolkata');
+        $date = date("d-M-Y");
+        $dbobject=new PDO(Config::$dbType.":host=".Config::$dbHost.";dbname=".Config::$dbName,Config::$dbUser,Config::$dbPassword);
+        $stmt=$dbobject->prepare("insert into `credit_list`(`bill_no`, `name`,`amount`, `date`, `given_by`) values(:bill_no,:name,:amount,'$date',:given_by)");
+        $stmt->bindParam(':bill_no',$bill_no);
+        $stmt->bindParam(':name',$name);
+        $stmt->bindParam(':amount',$amount);
+        $stmt->bindParam(':given_by',$_SESSION['username']);
+        if($stmt->execute()) {
+            $stmt=$dbobject->prepare("select * from `credit_list` where `bill_no`='$bill_no'");
+            $stmt->execute();
+            while($row=$stmt->fetch(PDO::FETCH_ASSOC)){
+                $total_pay['total_amount'] +=$row['amount'];
+            }
+        }
+        $dbobject=null;
+        return $total_pay;
     }
     function search_bill($search_bil_no,$search_name){
         $search_bill_details=array();

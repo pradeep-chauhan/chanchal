@@ -188,18 +188,18 @@ if(empty($_SESSION['logged_in'])){
                                         </th>
                                     </tr>
                                     </thead>
-                                    <tbody id="invoice_search_table_body">
+                                    <tbody id="invoice_search_table_body" class="editable-table">
                                     <tr class="table-row hidden bill-rows">
                                         <td id="bill_no"></td>
                                         <td id="name" ></td>
                                         <td id="date"></td>
                                         <td id="total_amount" ></td>
                                         <td id="sell_by" ></td>
-                                        <td id="status" ></td>
+                                        <td id="status" class="editable"></td>
                                         <td >
+                                            <button type="button" class="btn btn-primary adjust-amount red-stripe"><i class="fa fa-rupee"></i>&nbsp;Adjust Amount</button>
                                             <a class="btn btn-primary edit red-stripe" href="edit_bill.php?bill_no="><i class="fa fa-edit"></i>&nbsp;Edit</a>
                                             <a class="btn btn-primary view red-stripe" target="_blank" href="show_bill.php?bill_no="><i class="fa fa-bars"></i>&nbsp;View</a>
-                                            <button type="button" class="btn btn-primary cancel-bill red-stripe"><i class="fa fa-times"></i>&nbsp;Cancel</button>
                                         </td>
                                     </tr>
                                     </tbody>
@@ -229,18 +229,18 @@ if(empty($_SESSION['logged_in'])){
 <script type="text/javascript">
     $(document).ready(function(){
         $('#btn_bill_search').click(function(){
-            $search_bill_no=$('#search_bill_no').val();
-            $search_name=$('#search_name').val();
-            $search_mobile=$('#search_mobile').val();
+            var search_bill_no=$('#search_bill_no').val();
+            var search_name=$('#search_name').val();
+            var search_mobile=$('#search_mobile').val();
             $.ajax({
-                url:'jquery-data.php',
+                url:'jquery-data1.php',
                 type:'GET',
                 dataType:'JSON',
                 data:{
                     credit_bill_search:1,
-                    Search_bill_no:$search_bill_no,
-                    Search_name:$search_name,
-                    Search_mobile:$search_mobile
+                    Search_bill_no:search_bill_no,
+                    Search_name:search_name,
+                    Search_mobile:search_mobile
                 },
                 error: function(data) {
                     console.log(data);
@@ -254,12 +254,16 @@ if(empty($_SESSION['logged_in'])){
                         $template.removeClass('table-row');
                         $template.removeClass('hidden');
                         $template.addClass('append');
+                        var grand_total=data[i].grand_total;
+                        var total_pay=data[i].total_pay;
+                        var remaining_amount=grand_total-total_pay;
+                        console.log(remaining_amount);
                         $template.find('td').eq(0).html(data[i].id);
                         $template.find('td').eq(1).html(data[i].name);
                         $template.find('td').eq(2).html(data[i].date);
                         $template.find('td').eq(3).html(data[i].grand_total);
                         $template.find('td').eq(4).html(data[i].sell_by);
-                        $template.find('td').eq(5).html(data[i].status);
+                        $template.find('td').eq(5).html(remaining_amount);
                         if(data[i].status=="active") {
                             $template.find('.edit').attr('href',"edit_bill.php?bill_no="+data[i].id);
                             $template.find('.view').attr('href',"show_bill.php?bill_no="+data[i].id);
@@ -272,9 +276,52 @@ if(empty($_SESSION['logged_in'])){
                         }
                     }
                     initializeDeleteBill();
+                    editTableInitialize();
                 }
             });
         });
+        function editTableInitialize() {
+            $(".adjust-amount").click(function() {
+                var self = $(this);
+                var td_value = self.parent().parent().find("td").eq(5).html();
+                var textfield = self.parent().parent().find("td").eq(5);
+                if(textfield.find("input").length==0) {
+                    textfield.html("<input value='"+0+"' />");
+                    initializeInputEnter();
+                    textfield.find("input").focus();
+                    $(".adjust-amount").addClass("hidden");
+                }
+            });
+        }
+        function initializeInputEnter() {
+            $(".editable-table tr td input").keyup(function(e) {
+                var self = $(this);
+                var parent_td  = self.parent();
+                if(e.which==13) {
+                    var bill_no = parent_td.parent().find("td").eq(0).html();
+                    var name = parent_td.parent().find("td").eq(1).html();
+                    var amount = parent_td.parent().find("td").find("input").val();
+
+                    $.ajax({
+                        url:"jquery-data.php",
+                        type:"GET",
+                        dataType: "JSON",
+                        data:{
+                            pay_amount:1,
+                            bill_no:bill_no,
+                            name:name,
+                            amount:amount
+                        },
+                        success: function(data) {
+                            var grand_total = parent_td.parent().find("td").eq(3).html();
+                            var remaining_amount=grand_total-(data.total_amount);
+                            parent_td.parent().parent().find("td").find("input").remove("input");
+                            parent_td.parent().parent().find("td").eq(5).html(remaining_amount);
+                        }
+                    });
+                }
+            });
+        }
         function initializeDeleteBill() {
             $('.cancel-bill').click(function() {
                 var bill_no=$(this).attr("data-bill-no");
