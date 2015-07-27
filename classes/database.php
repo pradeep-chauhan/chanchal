@@ -12,7 +12,7 @@ class Config {
     static $dbPassword='root';
     static $dbHost='localhost';
     static $dbType='mysql';
-    static $dbName="chanchalgarments";
+    static $dbName="garments";
 
 }
 class Database {
@@ -1007,22 +1007,20 @@ class Database {
     function searchCredit_bill($search_bil_no,$search_name,$search_mobile){
         $search_bill_details=array();
         $dbobject=new PDO(Config::$dbType.":host=".Config::$dbHost.";dbname=".Config::$dbName,Config::$dbUser,Config::$dbPassword);
-        if($search_bil_no=="" && $search_name=="" && $search_mobile==""){
+        if($search_bil_no=="" && $search_name=="" && $search_mobile=="") {
             $stmt=$dbobject->prepare("select * from `sell_product` WHERE `payment_mode`='credit' ORDER BY `id` DESC");
             $stmt->execute();
-            while($row=$stmt->fetch(PDO::FETCH_ASSOC)){
+            while($row=$stmt->fetch(PDO::FETCH_ASSOC)) {
                 $stmt2=$dbobject->prepare("select * from `credit_list`  WHERE `bill_no`=:bill_no ORDER BY `id` DESC");
-                //$bill_no=$row['id'];
                 $stmt2->bindParam(":bill_no",$row['id']);
                 $stmt2->execute();
                 $total_pay=0;
                 while($row1=$stmt2->fetch(PDO::FETCH_ASSOC)) {
-                    $total_pay +=$row1['amount'];
-
+                    $total_pay += $row1['amount'];
                 }
+                $row['total_pay']=$total_pay;
+                $search_bill_details[]=$row;
             }
-            $row['total_pay']=$total_pay;
-            $search_bill_details[]=$row;
         }
         else {
             $stmt=$dbobject->prepare("select * from `sell_product`  where (`id` LIKE '$search_bil_no' OR `name` LIKE '$search_name' OR `mobile` LIKE '$search_mobile') and (`payment_mode`='credit') ORDER BY `id` DESC");
@@ -1035,7 +1033,6 @@ class Database {
                 while($row1=$stmt->fetch(PDO::FETCH_ASSOC)) {
                     $total_pay +=$row1['amount'];
                 }
-
             }
             $search_bill_details['total_pay']=$total_pay;
             $search_bill_details[]=$row;
