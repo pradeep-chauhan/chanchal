@@ -59,32 +59,33 @@ if(isset($_POST['btn_add_company'])) {
                         CG+
                     </div>
                 </li>
-                <li>
+                <li >
                     <a href="home.php"><i class="fa fa-th-large"></i> <span class="nav-label">Dashboards</span></a>
                 </li>
-                <?php if($_SESSION['role']=='admin') { ?>
-                <li class="active">
-                    <a href="add-company.php"><i class="fa fa-pencil-square"></i><span class="nav-label">Add New Company</span></a>
-                </li>
-                <li>
-                    <a href="add-stock.php"><i class="fa fa-pencil-square-o"></i> <span class="nav-label">Add Stock</span></a>
-                </li>
+                <?php if($_SESSION['role']=='admin') {
+                    ?>
+                    <li claas="active">
+                        <a href="add-company.php"><i class="fa fa-pencil-square"></i><span class="nav-label">Add New Company</span></a>
+                    </li>
+                    <li>
+                        <a href="add-stock.php"><i class="fa fa-pencil-square"></i> <span class="nav-label">Add Stock</span></a>
+                    </li>
                     <li class="">
                         <a href="edit-article.php"><i class="fa fa-pencil-square-o"></i> <span class="nav-label">Edit Article Details</span></a>
                     </li>
-                <li>
-                    <a href="barcode_details.php"><i class="fa fa-barcode"></i> <span class="nav-label">Generate Barcode</span></a>
-                </li>
-                <li class="">
-                    <a href="#"><i class="fa fa-bar-chart"></i> <span class="nav-label">Reports</span> <span class="fa arrow"></span></a>
-                    <ul class="nav nav-second-level collapse" aria-expanded="true">
-                        <li class=""><a href="company-reports.php">Company Reports</a></li>
-                        <li><a href="product-reports.php">Product Reports</a></li>
-                        <li><a href="sales-reports.php">Sales Reports</a></li>
-                        <li><a href="approval-reports.php">Approval Reports</a></li>
-                    </ul>
-                </li>
-                <?php } ?>
+                    <li>
+                        <a href="barcode_details.php"><i class="fa fa-barcode"></i> <span class="nav-label">Generate Barcode</span></a>
+                    </li>
+                    <li class="">
+                        <a href="#"><i class="fa fa-bar-chart"></i> <span class="nav-label">Reports</span> <span class="fa arrow"></span></a>
+                        <ul class="nav nav-second-level collapse" aria-expanded="true">
+                            <li class=""><a href="company-reports.php">Company Reports</a></li>
+                            <li><a href="product-reports.php">Product Reports</a></li>
+                            <li><a href="sales-reports.php">Sales Reports</a></li>
+                            <li><a href="approval-reports.php">Approval Reports</a></li>
+                        </ul>
+                    </li>
+                <?php }  ?>
                 <li class="">
                     <a href="#"><i class="fa fa-check"></i> <span class="nav-label">Approval Section</span> <span class="fa arrow"></span></a>
                     <ul class="nav nav-second-level collapse" aria-expanded="true">
@@ -93,21 +94,29 @@ if(isset($_POST['btn_add_company'])) {
                     </ul>
                 </li>
                 <li class="">
-                    <a href="#"><i class="fa fa-th-large"></i> <span class="nav-label">Billing Section</span> <span class="fa arrow"></span></a>
+                    <a href="#"><i class="fa fa-shopping-cart"></i> <span class="nav-label">Billing Section</span> <span class="fa arrow"></span></a>
                     <ul class="nav nav-second-level collapse" aria-expanded="true">
                         <li class=""><a href="create-bill.php">Create Bill</a></li>
                         <li><a href="view-bill.php">View Bill</a></li>
                     </ul>
                 </li>
-                <?php if($_SESSION['role']=='admin') { ?>
                 <li class="">
-                    <a href="#"><i class="fa fa-users"></i> <span class="nav-label">Employee</span> <span class="fa arrow"></span></a>
+                    <a href="#"><i class="fa fa-rupee"></i> <span class="nav-label">Credit Section</span> <span class="fa arrow"></span></a>
                     <ul class="nav nav-second-level collapse" aria-expanded="true">
-                        <li class=""><a href="add-employee.php">Add New Employee </a></li>
-                        <li><a href="employee-details.php">Employee Details</a></li>
+                        <!--                        <li class=""><a href="#">Create Bill</a></li>-->
+                        <li><a href="credit-bill.php">View Credit Bill</a></li>
                     </ul>
                 </li>
-                <?php } ?>
+                <?php if($_SESSION['role']=='admin') {
+                    ?>
+                    <li>
+                        <a href="#"><i class="fa fa-users"></i> <span class="nav-label">Employee</span> <span class="fa arrow"></span></a>
+                        <ul class="nav nav-second-level collapse" aria-expanded="true">
+                            <li class=""><a href="add-employee.php">Add New Employee </a></li>
+                            <li><a href="employee-details.php">Employee Details</a></li>
+                        </ul>
+                    </li>
+                <?php }  ?>
             </ul>
         </div>
     </nav>

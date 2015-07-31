@@ -128,6 +128,14 @@ elseif(isset($_GET['pay_amount']))
     $response=$db->updateCreditInfo($bill_no,$name,$amount);
     echo json_encode($response);
 }
+elseif(isset($_GET['pay_commision']))
+{
+    $db=new Database();
+    $name=$_GET['name'];
+    $commision=$_GET['commision'];
+    $response=$db->updateCommision($name,$commision);
+    echo json_encode($response);
+}
 elseif(isset($_GET['credit_bill_search']))
 {
     $db=new Database();

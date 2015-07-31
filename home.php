@@ -89,6 +89,13 @@ if(empty($_SESSION['logged_in'])){
                         <li><a href="view-bill.php">View Bill</a></li>
                     </ul>
                 </li>
+                <li class="">
+                    <a href="#"><i class="fa fa-rupee"></i> <span class="nav-label">Credit Section</span> <span class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level collapse" aria-expanded="true">
+                        <!--                        <li class=""><a href="#">Create Bill</a></li>-->
+                        <li><a href="credit-bill.php">View Credit Bill</a></li>
+                    </ul>
+                </li>
                 <?php if($_SESSION['role']=='admin') {
                 ?>
                 <li>

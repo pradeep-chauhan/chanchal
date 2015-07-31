@@ -1007,38 +1007,35 @@ class Database {
     function searchCredit_bill($search_bil_no,$search_name,$search_mobile){
         $search_bill_details=array();
         $dbobject=new PDO(Config::$dbType.":host=".Config::$dbHost.";dbname=".Config::$dbName,Config::$dbUser,Config::$dbPassword);
-        if($search_bil_no=="" && $search_name=="" && $search_mobile==""){
+        if($search_bil_no=="" && $search_name=="" && $search_mobile=="") {
             $stmt=$dbobject->prepare("select * from `sell_product` WHERE `payment_mode`='credit' ORDER BY `id` DESC");
             $stmt->execute();
-            while($row=$stmt->fetch(PDO::FETCH_ASSOC)){
+            while($row=$stmt->fetch(PDO::FETCH_ASSOC)) {
                 $stmt2=$dbobject->prepare("select * from `credit_list`  WHERE `bill_no`=:bill_no ORDER BY `id` DESC");
-                //$bill_no=$row['id'];
                 $stmt2->bindParam(":bill_no",$row['id']);
                 $stmt2->execute();
                 $total_pay=0;
                 while($row1=$stmt2->fetch(PDO::FETCH_ASSOC)) {
-                    $total_pay +=$row1['amount'];
-
+                    $total_pay += $row1['amount'];
                 }
+                $row['total_pay']=$total_pay;
+                $search_bill_details[]=$row;
             }
-            $row['total_pay']=$total_pay;
-            $search_bill_details[]=$row;
         }
         else {
             $stmt=$dbobject->prepare("select * from `sell_product`  where (`id` LIKE '$search_bil_no' OR `name` LIKE '$search_name' OR `mobile` LIKE '$search_mobile') and (`payment_mode`='credit') ORDER BY `id` DESC");
             $stmt->execute();
-            while($row=$stmt->fetch(PDO::FETCH_ASSOC)){
-                $search_bill_details[]=$row;
-                $stmt=$dbobject->prepare("select `amount` from `credit_list`  WHERE `bill_no`=:bill_no ORDER BY `id` DESC");
-                $stmt->bindParam(":bill_no",$row['bill_no']);
+            while($row=$stmt->fetch(PDO::FETCH_ASSOC)) {
+                $stmt2=$dbobject->prepare("select * from `credit_list`  WHERE `bill_no`=:bill_no ORDER BY `id` DESC");
+                $stmt2->bindParam(":bill_no",$row['id']);
+                $stmt2->execute();
                 $total_pay=0;
-                while($row1=$stmt->fetch(PDO::FETCH_ASSOC)) {
-                    $total_pay +=$row1['amount'];
+                while($row1=$stmt2->fetch(PDO::FETCH_ASSOC)) {
+                    $total_pay += $row1['amount'];
                 }
-
+                $row['total_pay']=$total_pay;
+                $search_bill_details[]=$row;
             }
-            $search_bill_details['total_pay']=$total_pay;
-            $search_bill_details[]=$row;
         }
         $dbobject = null;
         return $search_bill_details;
@@ -1062,6 +1059,20 @@ class Database {
         }
         $dbobject=null;
         return $total_pay;
+    }
+    function updateCommision($name,$commision){
+        $dbobject=new PDO(Config::$dbType.":host=".Config::$dbHost.";dbname=".Config::$dbName,Config::$dbUser,Config::$dbPassword);
+        $stmt=$dbobject->prepare("UPDATE `user` SET `got_commision`=`got_commision`+:commision  where `username`=:name");
+        $stmt->bindParam(':name',$name);
+        $stmt->bindParam(':commision',$commision);
+        if($stmt->execute()) {
+            $stmt=$dbobject->prepare("select * from `user` where `username`='$name'");
+            $stmt->execute();
+            $row=$stmt->fetch(PDO::FETCH_ASSOC);
+            $total_paid_commision =$row['got_commision'];
+        }
+        $dbobject=null;
+        return $total_paid_commision;
     }
     function search_bill($search_bil_no,$search_name){
         $search_bill_details=array();
@@ -1171,15 +1182,18 @@ class Database {
         $dbobject= new PDO(Config::$dbType.":host=".Config::$dbHost.";dbname=".Config::$dbName,Config::$dbUser,Config::$dbPassword);
         $stmt=$dbobject->prepare("select * from `user` where `username`='$employee_name'");
         $stmt->execute();
-        $row=$stmt->fetch(PDO::FETCH_ASSOC);
-        $employee_info=$row;
+        $row1=$stmt->fetch(PDO::FETCH_ASSOC);
+        $employee_info=$row1;
         $total_commision=0;
         $stmt=$dbobject->prepare("select * from `sell_product` where `sell_by`='$employee_name' ");
         $stmt->execute();
         while($row=$stmt->fetch(PDO::FETCH_ASSOC)) {
             $total_commision += $row['commision'];
         }
-        $old_commision=$row['got_commision'];
+        $old_commision=$row1['got_commision'];
+        if($old_commision=="") {
+            $old_commision=0;
+        }
         $employee_info['total_commision']=$total_commision-$old_commision;
         $dbobject=null;
         return $employee_info;

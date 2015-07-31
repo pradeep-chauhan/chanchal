@@ -51,7 +51,8 @@ if(empty($_SESSION['logged_in'])){
                 <li class="">
                     <a href="home.php"><i class="fa fa-th-large"></i> <span class="nav-label">Dashboards</span></a>
                 </li>
-                <?php if($_SESSION['role']=='admin') { ?>
+                <?php if($_SESSION['role']=='admin') {
+                    ?>
                     <li>
                         <a href="add-company.php"><i class="fa fa-pencil-square"></i><span class="nav-label">Add New Company</span></a>
                     </li>
@@ -73,7 +74,7 @@ if(empty($_SESSION['logged_in'])){
                             <li><a href="approval-reports.php">Approval Reports</a></li>
                         </ul>
                     </li>
-                <?php } ?>
+                <?php }  ?>
                 <li class="">
                     <a href="#"><i class="fa fa-check"></i> <span class="nav-label">Approval Section</span> <span class="fa arrow"></span></a>
                     <ul class="nav nav-second-level collapse" aria-expanded="true">
@@ -81,22 +82,30 @@ if(empty($_SESSION['logged_in'])){
                         <li><a href="view-approval-bill.php">Approval Status</a></li>
                     </ul>
                 </li>
-                <li class="active">
+                <li class="">
                     <a href="#"><i class="fa fa-shopping-cart"></i> <span class="nav-label">Billing Section</span> <span class="fa arrow"></span></a>
                     <ul class="nav nav-second-level collapse" aria-expanded="true">
                         <li class=""><a href="create-bill.php">Create Bill</a></li>
-                        <li class="active"><a href="view-bill.php">View Bill</a></li>
+                        <li><a href="view-bill.php">View Bill</a></li>
                     </ul>
                 </li>
-                <?php if($_SESSION['role']=='admin') { ?>
-                    <li class="">
+                <li class="active">
+                    <a href="#"><i class="fa fa-rupee"></i> <span class="nav-label">Credit Section</span> <span class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level collapse" aria-expanded="true">
+                        <!--                        <li class=""><a href="#">Create Bill</a></li>-->
+                        <li claas="active"><a href="credit-bill.php">View Credit Bill</a></li>
+                    </ul>
+                </li>
+                <?php if($_SESSION['role']=='admin') {
+                    ?>
+                    <li>
                         <a href="#"><i class="fa fa-users"></i> <span class="nav-label">Employee</span> <span class="fa arrow"></span></a>
                         <ul class="nav nav-second-level collapse" aria-expanded="true">
                             <li class=""><a href="add-employee.php">Add New Employee </a></li>
                             <li><a href="employee-details.php">Employee Details</a></li>
                         </ul>
                     </li>
-                <?php } ?>
+                <?php }  ?>
             </ul>
         </div>
     </nav>
@@ -198,8 +207,6 @@ if(empty($_SESSION['logged_in'])){
                                         <td id="status" class="editable"></td>
                                         <td >
                                             <button type="button" class="btn btn-primary adjust-amount red-stripe"><i class="fa fa-rupee"></i>&nbsp;Adjust Amount</button>
-                                            <a class="btn btn-primary edit red-stripe" href="edit_bill.php?bill_no="><i class="fa fa-edit"></i>&nbsp;Edit</a>
-                                            <a class="btn btn-primary view red-stripe" target="_blank" href="show_bill.php?bill_no="><i class="fa fa-bars"></i>&nbsp;View</a>
                                         </td>
                                     </tr>
                                     </tbody>
@@ -233,7 +240,7 @@ if(empty($_SESSION['logged_in'])){
             var search_name=$('#search_name').val();
             var search_mobile=$('#search_mobile').val();
             $.ajax({
-                url:'jquery-data1.php',
+                url:'jquery-data.php',
                 type:'GET',
                 dataType:'JSON',
                 data:{
@@ -246,7 +253,6 @@ if(empty($_SESSION['logged_in'])){
                     console.log(data);
                 },
                 success:function(data){
-                    console.log(data);
                     $('#invoice_search_table_body .append').remove();
                     for(var i=0;i<data.length;i++){
                         var $template=$('.table-row').clone();
@@ -257,25 +263,19 @@ if(empty($_SESSION['logged_in'])){
                         var grand_total=data[i].grand_total;
                         var total_pay=data[i].total_pay;
                         var remaining_amount=grand_total-total_pay;
-                        console.log(remaining_amount);
                         $template.find('td').eq(0).html(data[i].id);
                         $template.find('td').eq(1).html(data[i].name);
                         $template.find('td').eq(2).html(data[i].date);
                         $template.find('td').eq(3).html(data[i].grand_total);
                         $template.find('td').eq(4).html(data[i].sell_by);
                         $template.find('td').eq(5).html(remaining_amount);
-                        if(data[i].status=="active") {
-                            $template.find('.edit').attr('href',"edit_bill.php?bill_no="+data[i].id);
-                            $template.find('.view').attr('href',"show_bill.php?bill_no="+data[i].id);
-                            $template.find('.cancel-bill').attr('data-bill-no',data[i].id);
-                        }
-                        else {
-                            $template.find('.edit').addClass("hidden");
-                            $template.find('.view').attr('href',"show_bill.php?bill_no="+data[i].id);
-                            $template.find('.cancel-bill').addClass("hidden");
-                        }
+//                        if(data[i].status=="active") {
+//                            $template.find('.edit').attr('href',"edit_bill.php?bill_no="+data[i].id);
+//                        }
+//                        else {
+//                            $template.find('.edit').addClass("disabled");
+//                        }
                     }
-                    initializeDeleteBill();
                     editTableInitialize();
                 }
             });
@@ -289,7 +289,7 @@ if(empty($_SESSION['logged_in'])){
                     textfield.html("<input value='"+0+"' />");
                     initializeInputEnter();
                     textfield.find("input").focus();
-                    $(".adjust-amount").addClass("hidden");
+                    self.addClass("disabled");
                 }
             });
         }
@@ -314,43 +314,15 @@ if(empty($_SESSION['logged_in'])){
                         },
                         success: function(data) {
                             var grand_total = parent_td.parent().find("td").eq(3).html();
-                            var remaining_amount=grand_total-(data.total_amount);
-                            parent_td.parent().parent().find("td").find("input").remove("input");
-                            parent_td.parent().parent().find("td").eq(5).html(remaining_amount);
+                            var total_pay=data['total_amount'];
+                            var remaining_amount=grand_total-total_pay;
+                            parent_td.html(remaining_amount);
+                            parent_td.parent().find("td").eq(6).find("button").removeClass("disabled");
                         }
                     });
                 }
             });
         }
-        function initializeDeleteBill() {
-            $('.cancel-bill').click(function() {
-                var bill_no=$(this).attr("data-bill-no");
-                var button=$(this);
-                console.log(bill_no);
-                $.ajax({
-                    url:'jquery-data.php',
-                    type:'POST',
-                    dataType:'JSON',
-                    data:{
-                        cancel_bill:true,
-                        bill_no:bill_no
-                    },
-                    success:function(data){
-                        console.log(data);
-                        if(data.status==200) {
-                            $.gritter.add({
-                                title: data.title,
-                                text: data.msg,
-                                time: 2000
-                            });
-                            var parent = button.closest(".bill-rows");
-                            parent.find('td').eq(5).html("archived");
-                            parent.find('.edit').addClass('hidden');
-                            button.addClass('hidden');
-                        }
-                    }
-                });
-            });
-        }
+
     });
 </script>

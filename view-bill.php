@@ -48,10 +48,11 @@ if(empty($_SESSION['logged_in'])){
                         CG+
                     </div>
                 </li>
-                <li class="">
+                <li class="active">
                     <a href="home.php"><i class="fa fa-th-large"></i> <span class="nav-label">Dashboards</span></a>
                 </li>
-                <?php if($_SESSION['role']=='admin') { ?>
+                <?php if($_SESSION['role']=='admin') {
+                    ?>
                     <li>
                         <a href="add-company.php"><i class="fa fa-pencil-square"></i><span class="nav-label">Add New Company</span></a>
                     </li>
@@ -73,7 +74,7 @@ if(empty($_SESSION['logged_in'])){
                             <li><a href="approval-reports.php">Approval Reports</a></li>
                         </ul>
                     </li>
-                <?php } ?>
+                <?php }  ?>
                 <li class="">
                     <a href="#"><i class="fa fa-check"></i> <span class="nav-label">Approval Section</span> <span class="fa arrow"></span></a>
                     <ul class="nav nav-second-level collapse" aria-expanded="true">
@@ -85,18 +86,26 @@ if(empty($_SESSION['logged_in'])){
                     <a href="#"><i class="fa fa-shopping-cart"></i> <span class="nav-label">Billing Section</span> <span class="fa arrow"></span></a>
                     <ul class="nav nav-second-level collapse" aria-expanded="true">
                         <li class=""><a href="create-bill.php">Create Bill</a></li>
-                        <li class="active"><a href="view-bill.php">View Bill</a></li>
+                        <li claas="active"><a href="view-bill.php">View Bill</a></li>
                     </ul>
                 </li>
-                <?php if($_SESSION['role']=='admin') { ?>
-                    <li class="">
+                <li class="">
+                    <a href="#"><i class="fa fa-rupee"></i> <span class="nav-label">Credit Section</span> <span class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level collapse" aria-expanded="true">
+                        <!--                        <li class=""><a href="#">Create Bill</a></li>-->
+                        <li><a href="credit-bill.php">View Credit Bill</a></li>
+                    </ul>
+                </li>
+                <?php if($_SESSION['role']=='admin') {
+                    ?>
+                    <li>
                         <a href="#"><i class="fa fa-users"></i> <span class="nav-label">Employee</span> <span class="fa arrow"></span></a>
                         <ul class="nav nav-second-level collapse" aria-expanded="true">
                             <li class=""><a href="add-employee.php">Add New Employee </a></li>
                             <li><a href="employee-details.php">Employee Details</a></li>
                         </ul>
                     </li>
-                <?php } ?>
+                <?php }  ?>
             </ul>
         </div>
     </nav>

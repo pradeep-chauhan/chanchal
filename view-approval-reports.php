@@ -141,7 +141,7 @@ if(empty($_SESSION['logged_in'])){
             url:'jquery-data.php',
             type:'GET',
             dataType:'JSON',
-            data:{search_sales_details:1,Employee_name:$employee_name,Start:$start,End:$end},
+            data:{search_approval_details:1,Employee_name:$employee_name,Start:$start,End:$end},
             success:function(data){
                 var grand_total = 0;
                 if(data.length>0) {
